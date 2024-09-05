@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Author;
 use Carbon\Carbon;
+use App\Models\Author;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+
 
 class AuthorController extends Controller
 {
@@ -43,17 +45,27 @@ class AuthorController extends Controller
         $data['created_at'] = Carbon::now();
         // $data['updated_at'] = Carbon::now();
 
-        $author = Author::create($data);
+        $rules = [
+            'author_name' => 'required|string|max:255',
+            'author_contact_no' => 'required|string|max:255',
+            'author_country' => 'required|string|max:255',
+        ];
 
-        if ($author) {
-            return response()->json(['message' => 'New Author has been created successfully'], 200);
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->errors()], 400);
         } else {
-            return response()->json(['message' => 'something went wrong'], 404);
+
+            $author = Author::create($data);
+
+            if ($author) {
+                return response()->json(['message' => 'New Author has been created successfully'], 200);
+            } else {
+                return response()->json(['message' => 'something went wrong'], 400);
+            }
+
         }
-
-
-
-
     }
 
     /**
@@ -118,7 +130,7 @@ class AuthorController extends Controller
 
     public function search($term)
     {
-        $authors = Author::where('author_name', $term);
+        $authors = Author::where('author_name', "like", "%" . $term . "%")->get();
 
         if (!empty($authors)) {
             return response()->json(['data' => $authors], 200);
