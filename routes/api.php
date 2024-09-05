@@ -20,6 +20,9 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 
+Route::post("login", [UserController::class, 'login']);
+Route::post("register", [UserController::class, 'register']);
+
 Route::group(['middleware' => 'auth:sanctum'], function () {
     //All secure URL's
     Route::apiResource('author', 'App\Http\Controllers\AuthorController');
@@ -28,4 +31,4 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
 });
 
 
-Route::post("login", [UserController::class, 'index']);
+
